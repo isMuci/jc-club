@@ -1,5 +1,7 @@
 package com.jingdianjichi.auth.infra.basic.service.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
@@ -62,5 +64,11 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Override
     public boolean deleteById() {
         return this.authUserDao.deleteById() > 0;
+    }
+
+    @Override
+    public List<AuthUser> queryByCondition(AuthUser authUser) {
+
+        return this.authUserDao.queryAllByLimit(authUser);
     }
 }

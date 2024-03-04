@@ -8,7 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.jingdianjichi.oss.entity.FileInfo;
 
-
 public class AliStorageAdapter implements StorageAdapter {
 
     @Override
@@ -47,4 +46,10 @@ public class AliStorageAdapter implements StorageAdapter {
     public void deleteObject(String bucket, String objectName) {
 
     }
+
+    @Override
+    public String getUrl(String bucket, String objectName) {
+        return null;
+    }
+
 }

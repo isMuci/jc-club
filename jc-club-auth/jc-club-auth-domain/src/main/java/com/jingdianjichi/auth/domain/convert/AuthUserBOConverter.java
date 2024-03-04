@@ -22,6 +22,8 @@ public interface AuthUserBOConverter {
 
     AuthUser convertBOToEntity(AuthUserBO authUserBO);
 
+    AuthUserBO convertEntityToBO(AuthUser authUser);
+
     List<AuthUser> convertListBOToEntity(List<AuthUserBO> boList);
 
 }

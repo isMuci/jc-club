@@ -8,8 +8,8 @@ import javax.annotation.Generated;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-03-01T21:55:53+0800",
-    comments = "version: 1.4.2.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+    date = "2024-03-04T16:41:33+0800",
+    comments = "version: 1.4.2.Final, compiler: javac, environment: Java 1.8.0_391 (Oracle Corporation)"
 )
 public class AuthUserDTOConverterImpl implements AuthUserDTOConverter {
 
@@ -34,6 +34,29 @@ public class AuthUserDTOConverterImpl implements AuthUserDTOConverter {
         authUserBO.setExtJson( authUserDTO.getExtJson() );
 
         return authUserBO;
+    }
+
+    @Override
+    public AuthUserDTO convertBOToDTO(AuthUserBO authUserBO) {
+        if ( authUserBO == null ) {
+            return null;
+        }
+
+        AuthUserDTO authUserDTO = new AuthUserDTO();
+
+        authUserDTO.setId( authUserBO.getId() );
+        authUserDTO.setUserName( authUserBO.getUserName() );
+        authUserDTO.setNickName( authUserBO.getNickName() );
+        authUserDTO.setEmail( authUserBO.getEmail() );
+        authUserDTO.setPhone( authUserBO.getPhone() );
+        authUserDTO.setPassword( authUserBO.getPassword() );
+        authUserDTO.setSex( authUserBO.getSex() );
+        authUserDTO.setAvatar( authUserBO.getAvatar() );
+        authUserDTO.setStatus( authUserBO.getStatus() );
+        authUserDTO.setIntroduce( authUserBO.getIntroduce() );
+        authUserDTO.setExtJson( authUserBO.getExtJson() );
+
+        return authUserDTO;
     }
 
     @Override

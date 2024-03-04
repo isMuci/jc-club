@@ -1,6 +1,5 @@
 package com.jingdianjichi.oss.entity;
 
-
 public class FileInfo {
 
     private String fileName;

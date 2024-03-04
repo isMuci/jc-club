@@ -1,5 +1,7 @@
 package com.jingdianjichi.auth.infra.basic.service;
 
+import java.util.List;
+
 import com.jingdianjichi.auth.infra.basic.entity.AuthUser;
 
 /**
@@ -50,4 +52,5 @@ public interface AuthUserService {
      */
     boolean deleteById();
 
+    List<AuthUser> queryByCondition(AuthUser authUser);
 }

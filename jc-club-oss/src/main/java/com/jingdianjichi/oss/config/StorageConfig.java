@@ -9,10 +9,8 @@ import com.jingdianjichi.oss.adapter.AliStorageAdapter;
 import com.jingdianjichi.oss.adapter.MinioStorageAdapter;
 import com.jingdianjichi.oss.adapter.StorageAdapter;
 
-
 @Configuration
 @RefreshScope
-// @EnableAutoConfiguration
 public class StorageConfig {
 
     @Value("${storage.service.type}")

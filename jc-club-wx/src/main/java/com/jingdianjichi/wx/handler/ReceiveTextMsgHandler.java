@@ -1,14 +1,17 @@
 package com.jingdianjichi.wx.handler;
 
-import com.jingdianjichi.wx.enums.WxMsgTypeEnum;
-import com.jingdianjichi.wx.redis.RedisUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+
+import com.jingdianjichi.wx.enums.WxMsgTypeEnum;
+import com.jingdianjichi.wx.redis.RedisUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -35,7 +38,7 @@ public class ReceiveTextMsgHandler implements WxMsgHandler{
         }
         String toUserName=msgMap.get("ToUserName");
         String fromUserName=msgMap.get("FromUserName");
-        String num=String.valueOf(new Random().nextInt(10000));
+        String num = String.valueOf(new Random().nextInt(1000));
         String numKey = redisUtil.buildKey(LOGIN_PREFIX,num);
         redisUtil.setNx(numKey,fromUserName,5L, TimeUnit.MINUTES);
         String numContent="验证码为："+num+"\n5分钟内有效";

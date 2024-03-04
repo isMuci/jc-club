@@ -6,11 +6,10 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import cn.dev33.satoken.stp.SaTokenInfo;
-import cn.dev33.satoken.stp.StpUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.google.gson.Gson;
 import com.jingdianjichi.auth.common.enums.AuthUserStatusEnum;
@@ -24,6 +23,8 @@ import com.jingdianjichi.auth.infra.basic.entity.*;
 import com.jingdianjichi.auth.infra.basic.service.*;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
+import cn.dev33.satoken.stp.SaTokenInfo;
+import cn.dev33.satoken.stp.StpUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,6 +58,11 @@ public class AuthUserDomainServiceImpl implements AuthUserDomainService {
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
     public Boolean register(AuthUserBO authUserBO) {
+        AuthUser existAuthUser = new AuthUser();
+        existAuthUser.setUserName(authUserBO.getUserName());
+        List<AuthUser> existUser = authUserService.queryByCondition(existAuthUser);
+        if (!existUser.isEmpty())
+            return true;
         AuthUser authUser = AuthUserBOConverter.INSTANCE.convertBOToEntity(authUserBO);
         if (StringUtils.isNoneBlank(authUser.getPassword()))
             authUser.setPassword(SaSecureUtil.md5BySalt(authUser.getPassword(), salt));
@@ -111,16 +117,28 @@ public class AuthUserDomainServiceImpl implements AuthUserDomainService {
 
     @Override
     public SaTokenInfo doLogin(String validCode) {
-        String loginKey=redisUtil.buildKey(LOGIN_PREFIX,validCode);
-        String openId=redisUtil.get(loginKey);
-        if(StringUtils.isBlank(openId)){
+        String loginKey = redisUtil.buildKey(LOGIN_PREFIX, validCode);
+        String openId = redisUtil.get(loginKey);
+        if (StringUtils.isBlank(openId)) {
             return null;
         }
-        AuthUserBO authUserBO=new AuthUserBO();
+        AuthUserBO authUserBO = new AuthUserBO();
         authUserBO.setUserName(openId);
         this.register(authUserBO);
         StpUtil.login(openId);
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
         return tokenInfo;
+    }
+
+    @Override
+    public AuthUserBO getUserInfo(AuthUserBO authUserBO) {
+        AuthUser authUser = new AuthUser();
+        authUser.setUserName(authUserBO.getUserName());
+        List<AuthUser> userList = authUserService.queryByCondition(authUser);
+        if (CollectionUtils.isEmpty(userList)) {
+            return new AuthUserBO();
+        }
+        AuthUser user = userList.get(0);
+        return AuthUserBOConverter.INSTANCE.convertEntityToBO(user);
     }
 }

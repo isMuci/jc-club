@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.jingdianjichi.oss.entity.FileInfo;
 
-
 public interface StorageAdapter {
 
     /**
@@ -44,5 +43,8 @@ public interface StorageAdapter {
      * 删除文件
      */
     void deleteObject(String bucket, String objectName);
+
+    String getUrl(String bucket, String objectName);
+
 
 }

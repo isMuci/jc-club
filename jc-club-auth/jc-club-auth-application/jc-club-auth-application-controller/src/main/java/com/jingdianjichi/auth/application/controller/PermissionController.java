@@ -70,4 +70,16 @@ public class PermissionController {
         }
     }
 
+    @RequestMapping("getPermission")
+    public Result<Boolean> getPermission(String userName) {
+        try {
+            log.info("RoleController.getPermission.userName:{}", userName);
+            Preconditions.checkArgument(!StringUtils.isBlank(userName), "用户id不能为空");
+            return Result.ok(authPermissionDomainService.getPermission(userName));
+        } catch (Exception e) {
+            log.error("RoleController.getPermission.error:{}", e.getMessage(), e);
+            return Result.fail("查询用户权限失败");
+        }
+    }
+
 }

@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 
 import io.minio.MinioClient;
 
-
 @Configuration
 public class MinioConfig {
 

@@ -1,6 +1,7 @@
 package com.jingdianjichi.subject.domain.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Data;
 
@@ -32,5 +33,8 @@ public class SubjectCategoryBO implements Serializable {
      * 父级id
      */
     private Long parentId;
+    private Integer count;
+    private List<SubjectLabelBO> labelBOList;
+
 
 }

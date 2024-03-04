@@ -41,4 +41,5 @@ public interface SubjectCategoryService {
      */
     List<SubjectCategory> queryCategory(SubjectCategory subjectCategory);
 
+    Integer querySubjectCount(Long id);
 }

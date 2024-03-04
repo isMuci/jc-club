@@ -1,5 +1,7 @@
 package com.jingdianjichi.auth.domain.service;
 
+import java.util.List;
+
 import com.jingdianjichi.auth.domain.entity.AuthPermissionBO;
 
 /**
@@ -16,4 +18,6 @@ public interface AuthPermissionDomainService {
     Boolean update(AuthPermissionBO authPermissionBO);
 
     Boolean delete(AuthPermissionBO authPermissionBO);
+
+    List<String> getPermission(String userName);
 }

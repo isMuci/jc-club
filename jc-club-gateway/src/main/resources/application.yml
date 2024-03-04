@@ -1,6 +1,11 @@
 server:
   port: 5000
 spring:
+  servlet:
+    multipart:
+      maxFileSize: 10MB
+      # maxRequestSize 是总数据大小
+      maxRequestSize: 100MB
   cloud:
     gateway:
       routes:
