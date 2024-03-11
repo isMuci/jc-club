@@ -1,7 +1,11 @@
 package com.jingdianjichi.subject.domain.service.impl;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -15,6 +19,7 @@ import com.jingdianjichi.subject.domain.convert.SubjectCategoryConverter;
 import com.jingdianjichi.subject.domain.entity.SubjectCategoryBO;
 import com.jingdianjichi.subject.domain.entity.SubjectLabelBO;
 import com.jingdianjichi.subject.domain.service.SubjectCategoryDomainService;
+import com.jingdianjichi.subject.domain.util.CacheUtil;
 import com.jingdianjichi.subject.infra.basic.entity.SubjectCategory;
 import com.jingdianjichi.subject.infra.basic.entity.SubjectLabel;
 import com.jingdianjichi.subject.infra.basic.entity.SubjectMapping;
@@ -22,6 +27,7 @@ import com.jingdianjichi.subject.infra.basic.service.SubjectCategoryService;
 import com.jingdianjichi.subject.infra.basic.service.SubjectLabelService;
 import com.jingdianjichi.subject.infra.basic.service.SubjectMappingService;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -36,6 +42,11 @@ public class SubjectCategoryDomainServiceImpl implements SubjectCategoryDomainSe
 
     @Resource
     private SubjectLabelService subjectLabelService;
+    @Resource
+    private ThreadPoolExecutor labelThreadPool;
+
+    @Resource
+    private CacheUtil cacheUtil;
 
     @Override
     public void add(SubjectCategoryBO subjectCategoryBO) {
@@ -79,38 +90,71 @@ public class SubjectCategoryDomainServiceImpl implements SubjectCategoryDomainSe
         return count > 0;
     }
 
+    @SneakyThrows
     @Override
     public List<SubjectCategoryBO> queryCategoryAndLabel(SubjectCategoryBO subjectCategoryBO) {
+        String cacheKey = "categoryAndLabel." + subjectCategoryBO.getId();
+        List<SubjectCategoryBO> subjectCategoryBOS = cacheUtil.getResult(cacheKey, SubjectCategoryBO.class, (key) -> getSubjectCategoryBOS(subjectCategoryBO.getId()));
+        return subjectCategoryBOS;
+    }
+
+    private List<SubjectCategoryBO> getSubjectCategoryBOS(Long categoryId) {
         SubjectCategory subjectCategory = new SubjectCategory();
-        subjectCategory.setParentId(subjectCategoryBO.getId());
+        subjectCategory.setParentId(categoryId);
         subjectCategory.setIsDeleted(IsDeletedFlagEnum.UN_DELETED.getCode());
         List<SubjectCategory> subjectCategoryList = subjectCategoryService.queryCategory(subjectCategory);
         if (log.isInfoEnabled()) {
-            log.info("SubjectCategoryController.queryCategoryAndLabel.boList:{}", JSON.toJSONString(subjectCategoryList));
+            log.info("SubjectCategoryController.queryCategoryAndLabel.boList:{}",
+                    JSON.toJSONString(subjectCategoryList));
         }
-        List<SubjectCategoryBO> subjectCategoryBOList = SubjectCategoryConverter.INSTANCE.convertBoToCategory(subjectCategoryList);
+        List<SubjectCategoryBO> subjectCategoryBOList =
+                SubjectCategoryConverter.INSTANCE.convertBoToCategory(subjectCategoryList);
+        Map<Long, List<SubjectLabelBO>> map = new HashMap<>();
+
+        List<CompletableFuture<Map<Long, List<SubjectLabelBO>>>> completableFutureList = subjectCategoryBOList.stream()
+                .map(category -> CompletableFuture.supplyAsync(() -> getSubjectLabelBOList(category), labelThreadPool))
+                .collect(Collectors.toList());
+        completableFutureList.forEach(future -> {
+            try {
+                Map<Long, List<SubjectLabelBO>> resultMap = future.get();
+                map.putAll(resultMap);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         subjectCategoryBOList.forEach(category -> {
-            SubjectMapping subjectMapping = new SubjectMapping();
-            subjectMapping.setCategoryId(category.getId());
-            List<SubjectMapping> subjectMappingList = subjectMappingService.queryLabelId(subjectMapping);
-            if (CollectionUtils.isEmpty(subjectMappingList)) {
-                return;
-            }
-            List<Long> labelIdList = subjectMappingList.stream().map(SubjectMapping::getLabelId).collect(Collectors.toList());
-            List<SubjectLabel> labelList = subjectLabelService.batchQueryById(labelIdList);
-            List<SubjectLabelBO> labelBOList = new LinkedList<>();
-            labelList.forEach(label -> {
-                SubjectLabelBO subjectLabelBO = new SubjectLabelBO();
-                subjectLabelBO.setId(label.getId());
-                subjectLabelBO.setLabelName(label.getLabelName());
-                subjectLabelBO.setCategoryId(label.getCategoryId());
-                subjectLabelBO.setSortNum(label.getSortNum());
-                labelBOList.add(subjectLabelBO);
-            });
-            category.setLabelBOList(labelBOList);
+            category.setLabelBOList(map.get(category.getId()));
         });
         return subjectCategoryBOList;
+    }
+
+    private Map<Long, List<SubjectLabelBO>> getSubjectLabelBOList(SubjectCategoryBO category) {
+        if (log.isInfoEnabled()) {
+            log.info("SubjectCategoryController.getSubjectLabelBOList.bo:{}", JSON.toJSONString(category));
+        }
+        Map<Long, List<SubjectLabelBO>> labelMap = new HashMap<>();
+
+        SubjectMapping subjectMapping = new SubjectMapping();
+        subjectMapping.setCategoryId(category.getId());
+        List<SubjectMapping> subjectMappingList = subjectMappingService.queryLabelId(subjectMapping);
+        if (CollectionUtils.isEmpty(subjectMappingList)) {
+            return null;
+        }
+        List<Long> labelIdList =
+                subjectMappingList.stream().map(SubjectMapping::getLabelId).collect(Collectors.toList());
+        List<SubjectLabel> labelList = subjectLabelService.batchQueryById(labelIdList);
+        List<SubjectLabelBO> labelBOList = new LinkedList<>();
+        labelList.forEach(label -> {
+            SubjectLabelBO subjectLabelBO = new SubjectLabelBO();
+            subjectLabelBO.setId(label.getId());
+            subjectLabelBO.setLabelName(label.getLabelName());
+            subjectLabelBO.setCategoryId(label.getCategoryId());
+            subjectLabelBO.setSortNum(label.getSortNum());
+            labelBOList.add(subjectLabelBO);
+        });
+        labelMap.put(category.getId(), labelBOList);
+        return labelMap;
     }
 
 }

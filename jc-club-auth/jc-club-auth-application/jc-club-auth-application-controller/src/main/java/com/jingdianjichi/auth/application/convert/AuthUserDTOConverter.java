@@ -5,8 +5,8 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.jingdianjichi.auth.application.dto.AuthUserDTO;
 import com.jingdianjichi.auth.domain.entity.AuthUserBO;
+import com.jingdianjichi.auth.entity.AuthUserDTO;
 
 
 /**
