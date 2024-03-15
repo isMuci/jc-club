@@ -1,5 +1,6 @@
 package com.jingdianjichi.subject.domain.service.impl;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSON;
 import com.jingdianjichi.subject.common.entity.PageResult;
 import com.jingdianjichi.subject.common.enums.IsDeletedFlagEnum;
+import com.jingdianjichi.subject.common.util.IdWorkerUtil;
+import com.jingdianjichi.subject.common.util.LoginUtil;
 import com.jingdianjichi.subject.domain.convert.SubjectInfoConverter;
 import com.jingdianjichi.subject.domain.entity.SubjectInfoBO;
 import com.jingdianjichi.subject.domain.entity.SubjectOptionBO;
@@ -19,8 +22,10 @@ import com.jingdianjichi.subject.domain.handler.subject.SubjectTypeHandler;
 import com.jingdianjichi.subject.domain.handler.subject.SubjectTypeHandlerFactory;
 import com.jingdianjichi.subject.domain.service.SubjectInfoDomainService;
 import com.jingdianjichi.subject.infra.basic.entity.SubjectInfo;
+import com.jingdianjichi.subject.infra.basic.entity.SubjectInfoEs;
 import com.jingdianjichi.subject.infra.basic.entity.SubjectLabel;
 import com.jingdianjichi.subject.infra.basic.entity.SubjectMapping;
+import com.jingdianjichi.subject.infra.basic.service.SubjectEsService;
 import com.jingdianjichi.subject.infra.basic.service.SubjectInfoService;
 import com.jingdianjichi.subject.infra.basic.service.SubjectLabelService;
 import com.jingdianjichi.subject.infra.basic.service.SubjectMappingService;
@@ -42,6 +47,8 @@ public class SubjectInfoDomainServiceImpl implements SubjectInfoDomainService {
 
     @Resource
     private SubjectTypeHandlerFactory subjectTypeHandlerFactory;
+    @Resource
+    private SubjectEsService subjectEsService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -69,6 +76,16 @@ public class SubjectInfoDomainServiceImpl implements SubjectInfoDomainService {
             });
         });
         subjectMappingService.batchInsert(mappingList);
+
+        SubjectInfoEs subjectInfoEs = new SubjectInfoEs();
+        subjectInfoEs.setDocId(new IdWorkerUtil(1, 1, 1).nextId());
+        subjectInfoEs.setSubjectId(subjectInfo.getId());
+        subjectInfoEs.setSubjectAnswer(subjectInfoBO.getSubjectAnswer());
+        subjectInfoEs.setCreateTime(new Date().getTime());
+        subjectInfoEs.setCreateUser(LoginUtil.getLoginId());
+        subjectInfoEs.setSubjectName(subjectInfo.getSubjectName());
+        subjectInfoEs.setSubjectType(subjectInfo.getSubjectType());
+        subjectEsService.insert(subjectInfoEs);
     }
 
     @Override

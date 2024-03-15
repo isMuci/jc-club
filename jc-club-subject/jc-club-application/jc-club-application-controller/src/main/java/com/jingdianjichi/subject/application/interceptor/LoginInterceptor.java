@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import com.jingdianjichi.subject.application.context.LoginContextHolder;
+import com.jingdianjichi.subject.common.context.LoginContextHolder;
 
 public class LoginInterceptor implements HandlerInterceptor {
     @Override

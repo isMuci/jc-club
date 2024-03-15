@@ -20,10 +20,12 @@ public class TestFeignController {
     @Resource
     private UserRpc userRpc;
 
+
     @GetMapping("testFeign")
     public void testFeign() {
         UserInfo userInfo = userRpc.getUserInfo("jichi");
         log.info("TestFeignController.testFeign.userInfo:{}", userInfo);
     }
+
 
 }

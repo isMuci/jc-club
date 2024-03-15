@@ -1,4 +1,4 @@
-package com.jingdianjichi.subject.application.context;
+package com.jingdianjichi.subject.common.context;
 
 import java.util.Map;
 import java.util.Objects;
