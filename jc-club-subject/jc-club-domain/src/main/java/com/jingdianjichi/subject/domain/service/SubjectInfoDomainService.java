@@ -2,6 +2,7 @@ package com.jingdianjichi.subject.domain.service;
 
 import com.jingdianjichi.subject.common.entity.PageResult;
 import com.jingdianjichi.subject.domain.entity.SubjectInfoBO;
+import com.jingdianjichi.subject.infra.basic.entity.SubjectInfoEs;
 
 /**
  * 题目领域服务
@@ -26,4 +27,5 @@ public interface SubjectInfoDomainService {
      */
     SubjectInfoBO querySubjectInfo(SubjectInfoBO subjectInfoBO);
 
+    PageResult<SubjectInfoEs> getSubjectPageBySearch(SubjectInfoBO subjectInfoBO);
 }

@@ -132,6 +132,9 @@ public class UserController {
     public Result<SaTokenInfo> doLogin(@RequestParam("validCode")String validCode) {
         try {
             Preconditions.checkArgument(!StringUtils.isBlank(validCode),"验证码不能为空");
+            if (log.isInfoEnabled()) {
+                log.info("UserController.changeStatus.dto:{}", validCode);
+            }
             SaTokenInfo tokenInfo=authUserDomainService.doLogin(validCode);
             return Result.ok(tokenInfo);
         }catch (Exception e){

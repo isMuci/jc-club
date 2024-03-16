@@ -1,6 +1,8 @@
 package com.jingdianjichi.subject.common.entity;
 
+import lombok.Data;
 
+@Data
 public class PageInfo {
 
     private Integer pageNo = 1;

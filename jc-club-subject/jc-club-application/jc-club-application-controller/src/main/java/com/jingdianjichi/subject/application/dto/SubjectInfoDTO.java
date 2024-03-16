@@ -69,4 +69,6 @@ public class SubjectInfoDTO extends PageInfo implements Serializable {
 
     private Long labelId;
 
+    private String keyWord;
+
 }

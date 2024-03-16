@@ -181,7 +181,7 @@ public class EsRestClient {
         return null;
     }
 
-    public static SearchResponse searchWithTermQuery(EsIndexInfo esIndexInfo, String docId, EsSearchRequest esSearchRequest) {
+    public static SearchResponse searchWithTermQuery(EsIndexInfo esIndexInfo, EsSearchRequest esSearchRequest) {
         try {
             BoolQueryBuilder bq = esSearchRequest.getBq();
             String[] fields = esSearchRequest.getFields();

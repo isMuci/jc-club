@@ -4,8 +4,9 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+
+import com.google.gson.Gson;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
@@ -27,10 +28,11 @@ public class LoginFilter implements GlobalFilter {
             chain.filter(exchange);
         }
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+        log.info("LoginFilter.filter.url:{}", new Gson().toJson(tokenInfo));
         String loginId = (String) tokenInfo.getLoginId();
-        if (StringUtils.isEmpty(loginId)) {
-            throw new Exception("未获取到用户信息");
-        }
+//        if (StringUtils.isEmpty(loginId)) {
+//            throw new Exception("未获取到用户信息");
+//        }
         mutate.header("loginId", loginId);
         return chain.filter(exchange.mutate().request(mutate.build()).build());
     }

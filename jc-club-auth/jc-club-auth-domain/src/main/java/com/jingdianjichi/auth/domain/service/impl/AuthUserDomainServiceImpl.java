@@ -25,7 +25,6 @@ import com.jingdianjichi.auth.infra.basic.service.*;
 import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -55,7 +54,6 @@ public class AuthUserDomainServiceImpl implements AuthUserDomainService {
     private static final String LOGIN_PREFIX = "loginCode";
 
     @Override
-    @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
     public Boolean register(AuthUserBO authUserBO) {
         AuthUser existAuthUser = new AuthUser();

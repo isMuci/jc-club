@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jingdianjichi.subject.infra.basic.service.SubjectEsService;
 import com.jingdianjichi.subject.infra.entity.UserInfo;
 import com.jingdianjichi.subject.infra.rpc.UserRpc;
 
@@ -19,6 +20,9 @@ public class TestFeignController {
 
     @Resource
     private UserRpc userRpc;
+
+    @Resource
+    private SubjectEsService subjectEsService;
 
 
     @GetMapping("testFeign")
